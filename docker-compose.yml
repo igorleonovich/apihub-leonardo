@@ -1,0 +1,34 @@
+version: '3.6'
+
+services:
+#  www:
+#      image: nginx
+#      container_name: www.${DESTINATION_HOSTNAME}
+#      restart: always
+#      volumes:
+#        - "./html/:/usr/share/nginx/html"
+#      environment:
+#        - VIRTUAL_HOST=www.${DESTINATION_HOSTNAME}
+#        - VIRTUAL_PORT=${PORT}
+#        - LETSENCRYPT_HOST=www.${DESTINATION_HOSTNAME}
+#        - LETSENCRYPT_EMAIL=mail@${DESTINATION_HOSTNAME}
+
+  non-www:
+    container_name: ${DESTINATION_HOSTNAME}
+    image: redirect:latest
+    restart: always
+    build:
+      context: ./redirect-docker
+    environment:
+      - VIRTUAL_HOST=${DESTINATION_HOSTNAME}
+      - VIRTUAL_PORT=${PORT}
+      - HTTPS_METHOD=noredirect
+      - LETSENCRYPT_HOST=${DESTINATION_HOSTNAME}
+      - LETSENCRYPT_EMAIL=mail@${DESTINATION_HOSTNAME}
+      - REDIRECT=https://${REDIRECT_HOSTNAME}
+      - WORKER_CONNECTIONS=1024
+
+networks:
+  default:
+      name: nginx-proxy
+      external: true
